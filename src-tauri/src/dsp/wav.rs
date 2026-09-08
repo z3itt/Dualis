@@ -96,7 +96,7 @@ mod tests {
 
     #[test]
     fn writes_float_wav() {
-        let dir = std::env::temp_dir().join(format!("stems-wav-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("dualis-wav-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("test.wav");
         write_stereo_wav(&path, &[0.1, -0.2], &[0.0, 0.5], 44100).unwrap();

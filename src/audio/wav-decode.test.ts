@@ -43,7 +43,7 @@ function writeMonoWav(path: string, samples: number[], bits: 16 | 24 | 32, float
 
 describe("wav-decode", () => {
   it("decodes 24-bit pcm wav", () => {
-    const dir = mkdtempSync(join(tmpdir(), "stems-wav-"));
+    const dir = mkdtempSync(join(tmpdir(), "dualis-wav-"));
     const path = join(dir, "stem.wav");
     writeMonoWav(path, [0, 0.5, -0.75, 0.25], 24);
     const file = readFileSync(path);

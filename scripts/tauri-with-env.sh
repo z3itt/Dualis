@@ -3,11 +3,11 @@ set -euo pipefail
 
 # Fedora/tmpfs: /tmp is often small. Rust C compiler temps and linkers fail with
 # "Disk quota exceeded" when TMPDIR points at a full tmpfs. Use home instead.
-STEM_CACHE="${STEM_CACHE:-$HOME/.cache/stems-build}"
-mkdir -p "$STEM_CACHE/tmp"
-export TMPDIR="$STEM_CACHE/tmp"
-export TEMP="$STEM_CACHE/tmp"
-export TMP="$STEM_CACHE/tmp"
+DUALIS_CACHE="${DUALIS_CACHE:-$HOME/.cache/com.z3itt.dualis-build}"
+mkdir -p "$DUALIS_CACHE/tmp"
+export TMPDIR="$DUALIS_CACHE/tmp"
+export TEMP="$DUALIS_CACHE/tmp"
+export TMP="$DUALIS_CACHE/tmp"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # Keep artifacts in the repo. Cursor/CI often injects a sandbox CARGO_TARGET_DIR.

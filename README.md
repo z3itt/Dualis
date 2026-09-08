@@ -9,8 +9,8 @@ from the rest of the mix with ONNX, and play both stems in sync.
 | | |
 |---|---|
 | **Package** | `com.z3itt.dualis` |
-| **Version** | `1.0.0` |
-| **Platforms** | Linux (AppImage, RPM, DEB), Windows (NSIS / MSI) |
+| **Version** | `1.0.1` |
+| **Platforms** | Linux (AppImage, RPM, DEB), Windows (NSIS `.exe`) |
 | **License** | [GPL-3.0-or-later](LICENSE) |
 
 Dualis is free software. You may study, modify, and redistribute it under the
@@ -155,9 +155,9 @@ Linux packages land in `src-tauri/target/release/bundle/`:
 
 | Format | File |
 |--------|------|
-| AppImage | `bundle/appimage/Dualis_1.0.0_amd64.AppImage` |
-| DEB | `bundle/deb/Dualis_1.0.0_amd64.deb` |
-| RPM | `bundle/rpm/dualis-1.0.0-1.x86_64.rpm` |
+| AppImage | `bundle/appimage/Dualis_1.0.1_amd64.AppImage` |
+| DEB | `bundle/deb/Dualis_1.0.1_amd64.deb` |
+| RPM | `bundle/rpm/dualis-1.0.1-1.x86_64.rpm` |
 
 After `npm run desktop:build`, finish Linux installers with:
 
@@ -168,7 +168,7 @@ bash scripts/package-linux.sh
 Windows NSIS (`-setup.exe`) is built on GitHub Actions (`windows-latest`), not
 from this Fedora host. The GNU/MinGW `cargo build --target x86_64-pc-windows-gnu`
 path is for plain Rust binaries; Dualis needs the MSVC target, WebView2, and
-NSIS. MSI still requires a Windows machine (WiX).
+NSIS.
 
 After a tag, or via **Actions → Windows installer → Run workflow**, the
 `-setup.exe` is attached to that GitHub release.
