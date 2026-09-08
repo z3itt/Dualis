@@ -1,0 +1,68 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Dualis",
+  "version": "0.1.0",
+  "identifier": "com.z3itt.dualis",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Dualis",
+        "width": 1280,
+        "height": 820,
+        "minWidth": 1024,
+        "minHeight": 680,
+        "backgroundColor": "#EFEFEF"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' ipc: http://ipc.localhost; connect-src ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1421 http://127.0.0.1:* asset: http://asset.localhost https://fonts.googleapis.com https://fonts.gstatic.com; media-src 'self' asset: http://asset.localhost blob: http://127.0.0.1:*; img-src 'self' asset: http://asset.localhost data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com;",
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$APPDATA/**", "$APPLOCALDATA/**", "$APPCACHE/**", "$AUDIO/**", "$HOME/**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "license": "GPL-3.0-or-later",
+    "copyright": "Copyright (C) 2026 z3itt",
+    "shortDescription": "On-device vocal and instrumental stem separation",
+    "longDescription": "Paste a Spotify or YouTube Music link, download audio locally, separate vocals from the mix with ONNX, and play both stems in sync.",
+    "category": "Music",
+    "icon": [
+      "icons/32x32.png",
+      "icons/64x64.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": ["binaries/yt-dlp"],
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false,
+        "files": {
+          "/usr/lib/libwebgpu_dawn.so": "target/release/libwebgpu_dawn.so"
+        }
+      },
+      "deb": {
+        "files": {
+          "/usr/lib/libwebgpu_dawn.so": "target/release/libwebgpu_dawn.so"
+        }
+      },
+      "rpm": {
+        "files": {
+          "/usr/lib/libwebgpu_dawn.so": "target/release/libwebgpu_dawn.so"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+[package]
+name = "dualis"
+version = "0.1.0"
+description = "Dualis: on-device vocal and instrumental stem separation"
+authors = ["z3itt"]
+edition = "2021"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/z3itt/Dualis"
+
+[lib]
+name = "dualis_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[features]
+default = []
+# Optional execution providers. Do not enable several GPU EPs together unless
+# the downloaded ORT package actually ships that combination.
+cuda = ["ort/cuda"]
+openvino = ["ort/openvino"]
+rocm = ["ort/rocm"]
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset", "image-png"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "process", "io-util", "net", "rt-multi-thread", "macros", "sync", "time"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+symphonia = { version = "0.5", features = ["all"] }
+hound = "3.5"
+realfft = "3.4"
+ort = { version = "2.0.0-rc.13", features = ["download-binaries", "lax-feature-matching"] }
+rubato = "0.16"
+uuid = { version = "1", features = ["v4", "serde"] }
+regex = "1"
+num-complex = "0.4"
+futures-util = "0.3"
+parking_lot = "0.12"
+which = "7"
+num_cpus = "1.16"
+
+[target.'cfg(windows)'.dependencies]
+ort = { version = "2.0.0-rc.13", features = ["download-binaries", "lax-feature-matching", "directml"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+ort = { version = "2.0.0-rc.13", features = ["download-binaries", "lax-feature-matching", "webgpu"] }
