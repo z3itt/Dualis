@@ -1,7 +1,8 @@
 # Contributing to Dualis
 
 Dualis is GPL-3.0-or-later. By opening a pull request you agree to license
-your contribution under the same terms.
+your contribution under the same terms. See [LICENSE](LICENSE) and
+[COPYING](COPYING).
 
 ## Setup
 

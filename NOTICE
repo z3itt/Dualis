@@ -2,7 +2,7 @@ Dualis
 Copyright (C) 2026 z3itt <info@z3itt.com>
 
 This product is licensed under the GNU General Public License v3.0 or later.
-See LICENSE for the full terms.
+See LICENSE and COPYING for the full terms.
 
 Third-party components (yt-dlp sidecar, ONNX Runtime, Tauri, and others)
 remain under their own licenses. Bundled models are used only on the local

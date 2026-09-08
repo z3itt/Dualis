@@ -5,7 +5,7 @@ set -euo pipefail
 # AppImage is produced separately (appimagetool on Dualis.AppDir).
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-1.0.0}"
 RELEASE="${RELEASE:-1}"
 ARCH_DEB="${ARCH_DEB:-amd64}"
 ARCH_RPM="${ARCH_RPM:-x86_64}"
@@ -17,6 +17,7 @@ ICON128="$ROOT/src-tauri/icons/128x128.png"
 ICON64="$ROOT/src-tauri/icons/64x64.png"
 ICON32="$ROOT/src-tauri/icons/32x32.png"
 LICENSE="$ROOT/LICENSE"
+COPYING="$ROOT/COPYING"
 OUT_DEB="$ROOT/src-tauri/target/release/bundle/deb"
 OUT_RPM="$ROOT/src-tauri/target/release/bundle/rpm"
 STAGE="$ROOT/src-tauri/target/release/bundle/linux-pkg"
@@ -51,6 +52,9 @@ install -m 0755 "$BIN" "$STAGE/usr/bin/dualis"
 install -m 0755 "$YTDLP" "$STAGE/usr/bin/yt-dlp"
 install -m 0644 "$DAWN" "$STAGE/usr/lib/libwebgpu_dawn.so"
 install -m 0644 "$LICENSE" "$STAGE/usr/share/doc/dualis/copyright"
+if [[ -f "$COPYING" ]]; then
+  install -m 0644 "$COPYING" "$STAGE/usr/share/doc/dualis/COPYING"
+fi
 [[ -f "$ICON32" ]] && install -m 0644 "$ICON32" "$STAGE/usr/share/icons/hicolor/32x32/apps/dualis.png"
 [[ -f "$ICON64" ]] && install -m 0644 "$ICON64" "$STAGE/usr/share/icons/hicolor/64x64/apps/dualis.png"
 [[ -f "$ICON128" ]] && install -m 0644 "$ICON128" "$STAGE/usr/share/icons/hicolor/128x128/apps/dualis.png"
@@ -145,6 +149,7 @@ cp -a %{_sourcedir}/payload/. %{buildroot}/
 /usr/share/icons/hicolor/128x128/apps/dualis.png
 /usr/share/icons/hicolor/256x256/apps/dualis.png
 /usr/share/doc/dualis/copyright
+/usr/share/doc/dualis/COPYING
 EOF
   mkdir -p "$TOP/SOURCES/payload"
   cp -a "$STAGE/usr" "$TOP/SOURCES/payload/"
@@ -156,4 +161,42 @@ EOF
     -bb "$TOP/SPECS/dualis.spec"
   cp -f "$TOP"/RPMS/"$ARCH_RPM"/*.rpm "$OUT_RPM/"
   echo "wrote $OUT_RPM/dualis-${VERSION}-${RELEASE}.${ARCH_RPM}.rpm"
+fi
+
+# AppImage: reuse a linuxdeploy AppDir when present, otherwise stage a slim tree.
+OUT_APPIMAGE="$ROOT/src-tauri/target/release/bundle/appimage"
+APPDIR="$OUT_APPIMAGE/Dualis.AppDir"
+mkdir -p "$OUT_APPIMAGE"
+if [[ ! -d "$APPDIR/usr/bin" ]]; then
+  mkdir -p "$APPDIR/usr"
+  cp -a "$STAGE/usr/." "$APPDIR/usr/"
+  cat > "$APPDIR/AppRun" <<'EOF'
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH="$HERE/usr/lib:${LD_LIBRARY_PATH:-}"
+exec "$HERE/usr/bin/dualis" "$@"
+EOF
+  chmod +x "$APPDIR/AppRun"
+  ln -sfn usr/share/applications/Dualis.desktop "$APPDIR/Dualis.desktop"
+fi
+install -m 0755 "$BIN" "$APPDIR/usr/bin/dualis"
+install -m 0755 "$YTDLP" "$APPDIR/usr/bin/yt-dlp"
+install -m 0644 "$DAWN" "$APPDIR/usr/lib/libwebgpu_dawn.so"
+if [[ -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/dualis.png" ]]; then
+  cp -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/dualis.png" "$APPDIR/dualis.png"
+elif [[ -f "$ICON512" ]]; then
+  cp -f "$ICON512" "$APPDIR/dualis.png"
+fi
+ln -sfn dualis.png "$APPDIR/.DirIcon"
+APPIMAGETOOL="${APPIMAGETOOL:-$HOME/.cache/tauri/linuxdeploy-extracted/squashfs-root/plugins/linuxdeploy-plugin-appimage/usr/bin/appimagetool}"
+APPIMAGE_OUT="$OUT_APPIMAGE/Dualis_${VERSION}_amd64.AppImage"
+if [[ -x "$APPIMAGETOOL" ]]; then
+  export APPIMAGE_EXTRACT_AND_RUN=1
+  export ARCH=x86_64
+  rm -f "$APPIMAGE_OUT"
+  "$APPIMAGETOOL" -n "$APPDIR" "$APPIMAGE_OUT"
+  chmod +x "$APPIMAGE_OUT"
+  echo "wrote $APPIMAGE_OUT"
+else
+  echo "appimagetool not found; skip AppImage ($APPIMAGETOOL)" >&2
 fi

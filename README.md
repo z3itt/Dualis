@@ -9,13 +9,13 @@ from the rest of the mix with ONNX, and play both stems in sync.
 | | |
 |---|---|
 | **Package** | `com.z3itt.dualis` |
-| **Version** | `0.1.0` |
+| **Version** | `1.0.0` |
 | **Platforms** | Linux (AppImage, RPM, DEB), Windows (NSIS / MSI) |
 | **License** | [GPL-3.0-or-later](LICENSE) |
 
 Dualis is free software. You may study, modify, and redistribute it under the
-terms of the GNU General Public License v3. See [LICENSE](LICENSE) and
-[NOTICE](NOTICE).
+terms of the GNU General Public License v3. See [LICENSE](LICENSE),
+[COPYING](COPYING), and [NOTICE](NOTICE).
 
 Separation runs on your machine. Audio is not uploaded to a Dualis server.
 
@@ -155,9 +155,9 @@ Linux packages land in `src-tauri/target/release/bundle/`:
 
 | Format | File |
 |--------|------|
-| AppImage | `bundle/appimage/Dualis_0.1.0_amd64.AppImage` |
-| DEB | `bundle/deb/Dualis_0.1.0_amd64.deb` |
-| RPM | `bundle/rpm/dualis-0.1.0-1.x86_64.rpm` |
+| AppImage | `bundle/appimage/Dualis_1.0.0_amd64.AppImage` |
+| DEB | `bundle/deb/Dualis_1.0.0_amd64.deb` |
+| RPM | `bundle/rpm/dualis-1.0.0-1.x86_64.rpm` |
 
 After `npm run desktop:build`, finish Linux installers with:
 
