@@ -26,6 +26,9 @@ if [[ "$uname_s" == "Linux" && "$uname_m" == "x86_64" ]]; then
 elif [[ "$uname_s" == "Linux" && "$uname_m" == "aarch64" ]]; then
   fetch "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux_aarch64" \
     "$DEST/yt-dlp-aarch64-unknown-linux-gnu"
+elif [[ "$uname_s" == MINGW* || "$uname_s" == MSYS* || "$uname_s" == CYGWIN* || "$uname_s" == *"NT"* ]]; then
+  fetch "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" \
+    "$DEST/yt-dlp-x86_64-pc-windows-msvc.exe"
 fi
 
 if [[ "${FETCH_ALL:-0}" == "1" ]]; then

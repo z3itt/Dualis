@@ -165,7 +165,13 @@ After `npm run desktop:build`, finish Linux installers with:
 bash scripts/package-linux.sh
 ```
 
-Windows NSIS (`.exe`) and MSI need a Windows host with WebView2. They cannot be produced on Linux.
+Windows NSIS (`-setup.exe`) is built on GitHub Actions (`windows-latest`), not
+from this Fedora host. The GNU/MinGW `cargo build --target x86_64-pc-windows-gnu`
+path is for plain Rust binaries; Dualis needs the MSVC target, WebView2, and
+NSIS. MSI still requires a Windows machine (WiX).
+
+After a tag, or via **Actions → Windows installer → Run workflow**, the
+`-setup.exe` is attached to that GitHub release.
 
 The first stem job downloads the selected ONNX model (Kim Vocal 2 by default,
 about 60-80 MB).

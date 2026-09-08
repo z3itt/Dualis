@@ -1,0 +1,49 @@
+name: Windows installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to attach the NSIS installer to
+        required: true
+        default: v1.0.0
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  nsis:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Fetch Windows yt-dlp sidecar
+        shell: bash
+        run: |
+          mkdir -p src-tauri/binaries
+          curl -fsSL -L -o src-tauri/binaries/yt-dlp-x86_64-pc-windows-msvc.exe \
+            https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+          chmod +x src-tauri/binaries/yt-dlp-x86_64-pc-windows-msvc.exe
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: Dualis ${{ github.event.inputs.tag || github.ref_name }}
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: false
+          args: --bundles nsis
