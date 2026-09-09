@@ -5,7 +5,7 @@ set -euo pipefail
 # AppImage is produced separately (appimagetool on Dualis.AppDir).
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION="${VERSION:-1.0.2}"
+VERSION="${VERSION:-1.0.3}"
 RELEASE="${RELEASE:-1}"
 ARCH_DEB="${ARCH_DEB:-amd64}"
 ARCH_RPM="${ARCH_RPM:-x86_64}"

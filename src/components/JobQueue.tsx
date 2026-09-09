@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Loader2, RotateCcw, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { StageChips } from "@/components/StageChips";
 import { retryTrack } from "@/lib/api";
-import { parseEtaSeconds } from "@/lib/library";
+import { parseEtaSeconds, visibleFailedTracks } from "@/lib/library";
 import { formatEta } from "@/lib/utils";
 import { useAppStore } from "@/store/app";
 
@@ -12,12 +11,12 @@ export function JobQueue() {
   const tracks = useAppStore((s) => s.tracks);
   const jobs = useAppStore((s) => s.jobs);
   const applyTrack = useAppStore((s) => s.applyTrack);
-  const [hiddenErrors, setHiddenErrors] = useState<string[]>([]);
+  const dismissedJobErrorIds = useAppStore((s) => s.dismissedJobErrorIds);
+  const dismissJobError = useAppStore((s) => s.dismissJobError);
+  const clearDismissedJobError = useAppStore((s) => s.clearDismissedJobError);
   const live = tracks.filter((track) => ["downloading", "downloaded", "separating"].includes(String(track.status)));
   const waiting = tracks.filter((track) => track.status === "queued");
-  const failedAll = tracks.filter(
-    (track) => track.status === "error" && !hiddenErrors.includes(track.id)
-  );
+  const failedAll = visibleFailedTracks(tracks, dismissedJobErrorIds);
   const failed = failedAll.slice(0, 8);
 
   return (
@@ -87,7 +86,7 @@ export function JobQueue() {
                     variant="ghost"
                     className="h-11 w-11 shrink-0 text-red-700 hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900/40"
                     aria-label={`Dismiss error for ${track.title}`}
-                    onClick={() => setHiddenErrors((ids) => (ids.includes(track.id) ? ids : [...ids, track.id]))}
+                    onClick={() => dismissJobError(track.id)}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -98,7 +97,7 @@ export function JobQueue() {
                   variant="outline"
                   className="mt-2"
                   onClick={async () => {
-                    setHiddenErrors((ids) => ids.filter((id) => id !== track.id));
+                    clearDismissedJobError(track.id);
                     applyTrack({ ...track, status: "queued", error: null });
                     await retryTrack(track.id);
                   }}

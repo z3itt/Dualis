@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { filterTracks, parseEtaSeconds, sortTracks, stageIndex, standaloneTracks, tracksInPlaylist } from "./library";
+import {
+  filterTracks,
+  parseEtaSeconds,
+  pruneDismissedJobErrors,
+  sortTracks,
+  stageIndex,
+  standaloneTracks,
+  tracksInPlaylist,
+  visibleFailedTracks,
+} from "./library";
 import type { Track } from "./types";
 
 function track(partial: Partial<Track>): Track {
@@ -49,5 +58,15 @@ describe("library helpers", () => {
     ];
     expect(standaloneTracks(tracks).map((item) => item.id)).toEqual(["a"]);
     expect(tracksInPlaylist(tracks, "pl").map((item) => item.title)).toEqual(["First", "Inside"]);
+  });
+
+  it("hides dismissed failed tracks and prunes stale dismiss ids", () => {
+    const tracks = [
+      track({ id: "fail", status: "error", error: "nope" }),
+      track({ id: "ok", status: "ready" }),
+    ];
+    expect(visibleFailedTracks(tracks, ["fail"]).map((item) => item.id)).toEqual([]);
+    expect(visibleFailedTracks(tracks, []).map((item) => item.id)).toEqual(["fail"]);
+    expect(pruneDismissedJobErrors(tracks, ["fail", "missing", "ok"])).toEqual(["fail"]);
   });
 });

@@ -9,7 +9,7 @@ from the rest of the mix with ONNX, and play both stems in sync.
 | | |
 |---|---|
 | **Package** | `com.z3itt.dualis` |
-| **Version** | `1.0.2` |
+| **Version** | `1.0.3` |
 | **Platforms** | Linux (AppImage, RPM, DEB), Windows (NSIS `.exe`) |
 | **License** | [GPL-3.0-or-later](LICENSE) |
 
@@ -155,9 +155,9 @@ Linux packages land in `src-tauri/target/release/bundle/`:
 
 | Format | File |
 |--------|------|
-| AppImage | `bundle/appimage/Dualis_1.0.2_amd64.AppImage` |
-| DEB | `bundle/deb/Dualis_1.0.2_amd64.deb` |
-| RPM | `bundle/rpm/dualis-1.0.2-1.x86_64.rpm` |
+| AppImage | `bundle/appimage/Dualis_1.0.3_amd64.AppImage` |
+| DEB | `bundle/deb/Dualis_1.0.3_amd64.deb` |
+| RPM | `bundle/rpm/dualis-1.0.3-1.x86_64.rpm` |
 
 After `npm run desktop:build`, finish Linux installers with:
 

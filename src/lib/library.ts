@@ -52,3 +52,12 @@ export function stageIndex(stage: string) {
   const index = STAGES.indexOf(normalized as (typeof STAGES)[number]);
   return index < 0 ? 0 : index;
 }
+
+export function pruneDismissedJobErrors(tracks: Track[], dismissedIds: string[]) {
+  return dismissedIds.filter((id) => tracks.some((track) => track.id === id && track.status === "error"));
+}
+
+export function visibleFailedTracks(tracks: Track[], dismissedIds: string[]) {
+  const hidden = new Set(dismissedIds);
+  return tracks.filter((track) => track.status === "error" && !hidden.has(track.id));
+}

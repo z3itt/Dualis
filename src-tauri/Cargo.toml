@@ -1,6 +1,6 @@
 [package]
 name = "dualis"
-version = "1.0.2"
+version = "1.0.3"
 description = "Dualis: on-device vocal and instrumental stem separation"
 authors = ["z3itt"]
 edition = "2021"

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { DualStemEngine } from "@/audio/engine";
 import { getLibrary, prioritizeTrack, stemUrl } from "@/lib/api";
-import { tracksInPlaylist } from "@/lib/library";
+import { pruneDismissedJobErrors, tracksInPlaylist } from "@/lib/library";
 import { readUiStorage, STORAGE_KEY } from "@/lib/storage";
 import type { AppErrorLog, JobEvent, LibrarySort, LoopMode, Playlist, RuntimeInfo, StemMode, Track } from "@/lib/types";
 
@@ -15,6 +15,7 @@ interface PersistedUi {
   theme?: "light" | "dark";
   shuffle?: boolean;
   loopMode?: LoopMode;
+  dismissedJobErrorIds?: string[];
 }
 
 function parseLoopMode(value: unknown): LoopMode {
@@ -154,6 +155,7 @@ interface AppStore {
   queue: string[];
   queueOpen: boolean;
   errors: AppErrorLog[];
+  dismissedJobErrorIds: string[];
   runtime: RuntimeInfo | null;
   waveform: number[];
   modelBusy: boolean;
@@ -186,6 +188,8 @@ interface AppStore {
   skip: (delta: number, options?: { fromEnded?: boolean }) => Promise<void>;
   advanceFromEnded: () => Promise<void>;
   dismissError: (id: string) => void;
+  dismissJobError: (trackId: string) => void;
+  clearDismissedJobError: (trackId: string) => void;
   clearErrors: () => void;
   tick: () => void;
   setTheme: (theme: "light" | "dark") => void;
@@ -215,6 +219,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   queue: initial.queue ?? [],
   queueOpen: false,
   errors: [],
+  dismissedJobErrorIds: initial.dismissedJobErrorIds ?? [],
   runtime: null,
   waveform: Array.from({ length: 128 }, () => 0.12),
   modelBusy: false,
@@ -228,7 +233,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
   setModelBusy: (modelBusy) => set({ modelBusy }),
   refreshLibrary: async () => {
     const snapshot = await getLibrary();
-    set({ tracks: snapshot.tracks, playlists: snapshot.playlists });
+    set((state) => {
+      const dismissedJobErrorIds = pruneDismissedJobErrors(snapshot.tracks, state.dismissedJobErrorIds);
+      if (dismissedJobErrorIds.length !== state.dismissedJobErrorIds.length) {
+        saveUi({ dismissedJobErrorIds });
+      }
+      return { tracks: snapshot.tracks, playlists: snapshot.playlists, dismissedJobErrorIds };
+    });
   },
   openPlaylist: (openPlaylistId) => set({ openPlaylistId, selectedIds: [] }),
   removePlaylist: (id) => {
@@ -260,6 +271,16 @@ export const useAppStore = create<AppStore>((set, get) => ({
   },
   applyJob: (event) => {
     set((state) => {
+      let dismissedJobErrorIds = state.dismissedJobErrorIds;
+      if (event.status === "error") {
+        if (dismissedJobErrorIds.includes(event.trackId)) {
+          dismissedJobErrorIds = dismissedJobErrorIds.filter((id) => id !== event.trackId);
+          saveUi({ dismissedJobErrorIds });
+        }
+      } else if (dismissedJobErrorIds.includes(event.trackId)) {
+        dismissedJobErrorIds = dismissedJobErrorIds.filter((id) => id !== event.trackId);
+        saveUi({ dismissedJobErrorIds });
+      }
       const errors =
         event.status === "error"
           ? [
@@ -286,6 +307,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       return {
         jobs: { ...state.jobs, [event.trackId]: event },
         errors,
+        dismissedJobErrorIds,
         tracks,
         playlists,
       };
@@ -294,11 +316,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
   removeTrack: (id) => {
     set((state) => {
       const queue = state.queue.filter((item) => item !== id);
-      saveUi({ queue });
+      const dismissedJobErrorIds = state.dismissedJobErrorIds.filter((item) => item !== id);
+      saveUi({ queue, dismissedJobErrorIds });
       return {
         tracks: state.tracks.filter((track) => track.id !== id),
         selectedIds: state.selectedIds.filter((item) => item !== id),
         queue,
+        dismissedJobErrorIds,
         shuffleOrder: state.shuffleOrder.filter((item) => item !== id),
         shufflePlayed: state.shufflePlayed.filter((item) => item !== id),
         currentId: state.currentId === id ? null : state.currentId,
@@ -309,11 +333,13 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const drop = new Set(ids);
     set((state) => {
       const queue = state.queue.filter((item) => !drop.has(item));
-      saveUi({ queue });
+      const dismissedJobErrorIds = state.dismissedJobErrorIds.filter((item) => !drop.has(item));
+      saveUi({ queue, dismissedJobErrorIds });
       return {
         tracks: state.tracks.filter((track) => !drop.has(track.id)),
         selectedIds: [],
         queue,
+        dismissedJobErrorIds,
         shuffleOrder: state.shuffleOrder.filter((item) => !drop.has(item)),
         shufflePlayed: state.shufflePlayed.filter((item) => !drop.has(item)),
         currentId: state.currentId && drop.has(state.currentId) ? null : state.currentId,
@@ -584,6 +610,26 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
   },
   dismissError: (id) => set((state) => ({ errors: state.errors.filter((item) => item.id !== id) })),
+  dismissJobError: (trackId) => {
+    set((state) => {
+      if (state.dismissedJobErrorIds.includes(trackId)) {
+        return state;
+      }
+      const dismissedJobErrorIds = [...state.dismissedJobErrorIds, trackId];
+      saveUi({ dismissedJobErrorIds });
+      return { dismissedJobErrorIds };
+    });
+  },
+  clearDismissedJobError: (trackId) => {
+    set((state) => {
+      if (!state.dismissedJobErrorIds.includes(trackId)) {
+        return state;
+      }
+      const dismissedJobErrorIds = state.dismissedJobErrorIds.filter((id) => id !== trackId);
+      saveUi({ dismissedJobErrorIds });
+      return { dismissedJobErrorIds };
+    });
+  },
   clearErrors: () => set({ errors: [] }),
   tick: () => {
     engine.pollEnded();
