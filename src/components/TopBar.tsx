@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import pkg from "../../package.json";
 import { ArrowUpRight, Clock, FolderOpen, Link2, Loader2, Moon, MoreVertical, Sun } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { BrandMark } from "@/components/BrandMark";
@@ -276,7 +277,7 @@ export function TopBar({ now }: { now: string }) {
                       </p>
                     ) : (
                       <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-                        Netscape cookies.txt (Discord bot style).
+                        Netscape cookies.txt.
                       </p>
                     )}
                   </div>
@@ -336,7 +337,7 @@ export function TopBar({ now }: { now: string }) {
                   ) : null}
 
                   <p className="mt-3 border-t border-border pt-2 text-center text-[10px] text-muted-foreground">
-                    developed by z3itt
+                    developed by z3itt • v{pkg.version}
                   </p>
                 </div>
               ) : null}

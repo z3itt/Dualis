@@ -5,7 +5,7 @@ set -euo pipefail
 # AppImage is produced separately (appimagetool on Dualis.AppDir).
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-VERSION="${VERSION:-1.0.3}"
+VERSION="${VERSION:-1.0.4}"
 RELEASE="${RELEASE:-1}"
 ARCH_DEB="${ARCH_DEB:-amd64}"
 ARCH_RPM="${ARCH_RPM:-x86_64}"
@@ -20,7 +20,12 @@ LICENSE="$ROOT/LICENSE"
 COPYING="$ROOT/COPYING"
 OUT_DEB="$ROOT/src-tauri/target/release/bundle/deb"
 OUT_RPM="$ROOT/src-tauri/target/release/bundle/rpm"
+OUT_APPIMAGE="$ROOT/src-tauri/target/release/bundle/appimage"
 STAGE="$ROOT/src-tauri/target/release/bundle/linux-pkg"
+
+# Drop stale installer artifacts from earlier versions.
+rm -f "$OUT_DEB"/Dualis_*.deb "$OUT_RPM"/dualis-*.rpm "$OUT_RPM"/Dualis-*.rpm "$OUT_APPIMAGE"/Dualis_*.AppImage
+rm -rf "$OUT_DEB"/Dualis_*_amd64 "$OUT_RPM"/Dualis-*-1.x86_64
 
 if [[ ! -x "$BIN" ]]; then
   echo "missing release binary: $BIN" >&2
@@ -164,7 +169,6 @@ EOF
 fi
 
 # AppImage: reuse a linuxdeploy AppDir when present, otherwise stage a slim tree.
-OUT_APPIMAGE="$ROOT/src-tauri/target/release/bundle/appimage"
 APPDIR="$OUT_APPIMAGE/Dualis.AppDir"
 mkdir -p "$OUT_APPIMAGE"
 if [[ ! -d "$APPDIR/usr/bin" ]]; then
