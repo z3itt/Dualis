@@ -215,3 +215,10 @@ guidelines.
 - **Email:** info@z3itt.com
 - **Website:** https://z3itt.com
 - **Source:** https://github.com/z3itt
+
+---
+
+**Android.** Phones and tablets use a separate native app, not a wrap of this
+desktop UI: [Dualis for Android](https://github.com/z3itt/Dualis-for-Android).
+Same on-device ONNX stems and dual-stem player (Jetpack Compose). APKs are on
+[GitHub Releases](https://github.com/z3itt/Dualis-for-Android/releases/tag/v1.0.0).
